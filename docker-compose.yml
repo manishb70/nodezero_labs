@@ -18,3 +18,23 @@ services:
     build: ./xss_lab
     ports:
       - "8004:80"
+  lab6:
+    build: ./xss_level_2
+    ports:
+      - "8005:80"
+  lab7:
+    build: ./Infinite_Money_Glitch
+    ports:
+      - "8006:80"
+  lab8:
+    build: ./Unprotected_admin_functionality
+    ports:
+      - "8007:80"
+  lab9:
+    build: ./bank_lab
+    ports:
+      - "8008:80"
+  lab10:
+    build: ./xss_mullti_params
+    ports:
+      - "8009:80"
