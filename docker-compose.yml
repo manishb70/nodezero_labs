@@ -38,3 +38,7 @@ services:
     build: ./xss_mullti_params
     ports:
       - "8009:80"
+  lab11:
+    build: ./broken_access_controll_by_cookiees
+    ports:
+      - "8010:80"
