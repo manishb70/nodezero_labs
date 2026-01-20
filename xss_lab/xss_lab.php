@@ -5,7 +5,7 @@
 // This tells Chrome/Edge NOT to block the XSS attack so you can practice.
 header("X-XSS-Protection: 0");
 
-$flag = "NodeZero{XSS_p0pup_m4st3r}";
+$flag = "NodeZero{XSS_M4St3R_Eng1n33R}";
 $query = $_GET['q'] ?? '';
 ?>
 
