@@ -190,14 +190,18 @@ $page = $_GET['page'] ?? 'home';
         <?php elseif ($page === 'sitemap'): ?>
             <div class="card">
                 <h1>XML Sitemap</h1>
-                <textarea style="width:100%; height:150px; background:#222; color:#0f0; border:none; padding:10px;">
-<?xml version="1.0" encoding="UTF-8"?>
+               <textarea>
+<?php
+echo htmlspecialchars(
+'<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-   <url>
-      <loc>http://www.quantumleap.com/</loc>
-      </url>
-</urlset>
-                </textarea>
+    <url>
+        <loc>http://www.quantumleap.com/</loc>
+    </url>
+</urlset>'
+);
+?>
+</textarea>
                 <p>Check the XML comment inside the text area code.</p>
             </div>
 

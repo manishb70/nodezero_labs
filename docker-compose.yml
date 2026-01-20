@@ -31,7 +31,7 @@ services:
     ports:
       - "8007:80"
   lab8:
-    build: ./bank_lab
+    build: ./bank_lab_infinite_money
     ports:
       - "8008:80"
   lab9:
@@ -91,3 +91,11 @@ services:
     build: ./source_hunting_10
     ports:
       - "8022:80"
+  lab23:
+    build: ./reset_vuln
+    ports:
+      - "8023:80"
+  lab24:
+    build: ./User_role_can_be_modified_in_user_profile
+    ports:
+      - "8024:80"
