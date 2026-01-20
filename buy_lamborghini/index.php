@@ -1,0 +1,262 @@
+<?php
+/**
+ * AUTOMOBILI SUPREMO - THE SPLIT FLAG CHALLENGE
+ * * MISSION: Assemble the flag by hacking 3 different systems.
+ * * PART 1: Privilege Escalation (Cookies) -> Unlocks Showroom & Flag Part 1
+ * PART 2: IDOR (Invoices) -> Finds Voucher & Flag Part 2
+ * PART 3: Parameter Tampering (Checkout) -> Buys Car & Flag Part 3
+ */
+
+session_start();
+
+// --- CONFIGURATION ---
+// The Flag is split into 3 pieces.
+$FLAG_PART_1 = "NodeZero{c00ki";       // Stage 1
+$FLAG_PART_2 = "e_r0le_manipu";        // Stage 2
+$FLAG_PART_3 = "lati0n_vip}";          // Stage 3
+
+$LAMBO_PRICE = 1000000.00; // $1 Million
+$VOUCHER_CODE = "DEV_TEST_90"; // Found in Stage 2
+
+// --- SESSION INIT ---
+if (!isset($_COOKIE['user_role'])) {
+    setcookie('user_role', 'guest', time() + 3600);
+    $_COOKIE['user_role'] = 'guest';
+}
+
+// --- CONTROLLERS ---
+
+$page = $_GET['page'] ?? 'home';
+$msg = "";
+$msg_type = "";
+
+// 1. HANDLE CHECKOUT (STAGE 3 LOGIC)
+if ($page === 'process_order' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    $base_price = $LAMBO_PRICE;
+    
+    // Apply Voucher
+    $voucher = $_POST['voucher'] ?? '';
+    $discount = 0;
+    if ($voucher === $VOUCHER_CODE) {
+        $discount = $base_price * 0.90; // 90% Off
+    }
+    
+    // VULNERABILITY (STAGE 3): Hidden Parameter Tampering
+    // Hacker must change this from 500 to a negative number (e.g. -100500)
+    $handling_fee = (float) ($_POST['handling_fee'] ?? 500);
+    
+    $final_total = ($base_price - $discount) + $handling_fee;
+    
+    // WIN CONDITION
+    if ($final_total <= 0) {
+        header("Location: ?page=success");
+        exit;
+    } else {
+        $msg = "Transaction Failed. You owe $" . number_format($final_total, 2);
+        $msg_type = "error";
+    }
+}
+
+// 2. MOCK DATABASE (STAGE 2 LOGIC)
+$invoices = [
+    100 => ['user' => 'guest', 'item' => 'Tire Replacement', 'total' => 500, 'note' => 'Standard Order'],
+    // TARGET INVOICE
+    101 => [
+        'user' => 'admin', 
+        'item' => 'Prototype Testing', 
+        'total' => 0, 
+        'note' => "INTERNAL MEMO: \n1. Voucher Code: $VOUCHER_CODE \n2. FLAG PART 2: [$FLAG_PART_2]" 
+    ]
+];
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automobili Supremo | CTF</title>
+    <style>
+        :root { --bg: #0f0f0f; --card: #1a1a1a; --gold: #d4af37; --text: #e0e0e0; }
+        body { margin: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); }
+        
+        .navbar { background: black; padding: 20px 40px; display: flex; justify-content: space-between; border-bottom: 2px solid var(--gold); }
+        .brand { font-size: 1.5rem; color: var(--gold); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 20px; font-size: 0.9rem; }
+        
+        .container { max-width: 1000px; margin: 40px auto; padding: 20px; }
+        .card { background: var(--card); padding: 30px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #333; }
+        
+        .btn { background: var(--gold); color: black; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .alert { padding: 15px; margin-bottom: 20px; border-radius: 4px; border-left: 5px solid; }
+        .alert-error { background: #300; border-color: red; color: #ffcccc; }
+        .alert-success { background: #002200; border-color: lime; color: #ccffcc; }
+        
+        /* The Flag Pieces Style */
+        .flag-piece { 
+            font-family: monospace; 
+            color: #00ff00; 
+            background: #000; 
+            padding: 5px 10px; 
+            border: 1px dashed #00ff00; 
+            display: inline-block; 
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        
+        .blur { filter: blur(5px); pointer-events: none; user-select: none; }
+        .lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); z-index: 10; flex-direction: column; text-align: center;}
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand">Automobili Supremo</div>
+        <div class="nav-links">
+            <a href="?page=home">Showroom</a>
+            <a href="?page=orders">My Orders</a>
+            <a href="?page=checkout">Cart</a>
+            <span style="color: #666; margin-left: 20px; border: 1px solid #444; padding: 2px 8px;">Role: <?php echo strtoupper($_COOKIE['user_role']); ?></span>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <?php if ($msg): ?>
+            <div class="alert alert-<?php echo $msg_type; ?>"><?php echo $msg; ?></div>
+        <?php endif; ?>
+
+        <?php if ($page === 'home'): ?>
+            
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h1 style="font-weight: 300;">The Collection</h1>
+            </div>
+
+            <div class="card" style="position: relative; overflow: hidden; min-height: 400px;">
+                <?php if ($_COOKIE['user_role'] !== 'vip'): ?>
+                    <div class="lock-overlay">
+                        <h2 style="color: var(--gold);">VIP ACCESS ONLY</h2>
+                        <p>We do not show our prices to guests.</p>
+                        <p style="color: #666; font-size: 0.8rem;">(HINT: Check your 'user_role' cookie)</p>
+                    </div>
+                    <div class="blur">
+                        <h2>Lamborghini Revuelto</h2>
+                        <p>V12 Hybrid HPEV</p>
+                    </div>
+                <?php else: ?>
+                    <div style="display: flex; gap: 40px;">
+                        <div style="flex: 1; display:flex; align-items:center; justify-content:center; background: #222; font-size: 5rem;">🏎️</div>
+                        <div style="flex: 1;">
+                            <h2 style="color: var(--gold); margin-top: 0;">Lamborghini Revuelto</h2>
+                            <h3 style="font-size: 2rem;">$1,000,000.00</h3>
+                            
+                            <div class="alert alert-success">
+                                <strong>STAGE 1 COMPLETE</strong><br>
+                                You are now VIP.<br>
+                                Flag Part 1: <br>
+                                <span class="flag-piece"><?php echo $FLAG_PART_1; ?></span>
+                            </div>
+                            
+                            <a href="?page=checkout"><button class="btn" style="width: 100%;">Proceed to Buy</button></a>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+        <?php elseif ($page === 'orders'): ?>
+            
+            <h2>Order History</h2>
+            <div class="card">
+                <table width="100%" style="border-collapse: collapse;">
+                    <tr style="border-bottom: 1px solid #333; text-align: left;">
+                        <th style="padding: 10px;">Date</th>
+                        <th>Invoice ID</th>
+                        <th>Action</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px;">2024-01-15</td>
+                        <td>#100</td>
+                        <td><a href="?page=invoice&id=100" style="color: var(--gold);">View Invoice</a></td>
+                    </tr>
+                </table>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">
+                    (HINT: Are there other invoice IDs hidden in the system?)
+                </p>
+            </div>
+
+        <?php elseif ($page === 'invoice'): ?>
+            
+            <?php 
+                $id = $_GET['id'] ?? 0;
+                $inv = $invoices[$id] ?? null;
+            ?>
+            
+            <div class="card" style="font-family: monospace;">
+                <?php if ($inv): ?>
+                    <a href="?page=orders" style="color: #666; text-decoration: none;">&larr; Back</a>
+                    <h2 style="border-bottom: 1px dashed #666; padding-bottom: 10px;">INVOICE #<?php echo $id; ?></h2>
+                    
+                    <p><strong>Billed To:</strong> <?php echo strtoupper($inv['user']); ?></p>
+                    <p><strong>Total:</strong> $<?php echo number_format($inv['total'], 2); ?></p>
+                    
+                    <div style="background: #222; padding: 15px; margin-top: 20px; border-left: 3px solid var(--gold);">
+                        <strong>NOTES:</strong><br>
+                        <?php echo nl2br($inv['note']); ?>
+                    </div>
+                <?php else: ?>
+                    <h2 style="color: red;">Error: Invoice #<?php echo $id; ?> not found.</h2>
+                <?php endif; ?>
+            </div>
+
+        <?php elseif ($page === 'checkout'): ?>
+            
+            <div class="card">
+                <h2>Checkout</h2>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Lamborghini Revuelto</span>
+                    <span>$1,000,000.00</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #888;">
+                    <span>Handling Fee</span>
+                    <span>$500.00</span>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+                
+                <form action="?page=process_order" method="POST">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 5px; font-size: 0.9rem;">Promo Code</label>
+                        <input type="text" name="voucher" placeholder="Enter code found in Stage 2" style="padding: 10px; width: 60%; background: #333; border: 1px solid #444; color: white;">
+                    </div>
+                    
+                    <input type="hidden" name="handling_fee" value="500">
+                    
+                    <button class="btn">Pay Now</button>
+                </form>
+            </div>
+
+        <?php elseif ($page === 'success'): ?>
+            
+            <div class="card" style="text-align: center; border: 2px solid #00ff00;">
+                <div style="font-size: 5rem;">🎉</div>
+                <h1 style="color: #00ff00;">HEIST COMPLETE</h1>
+                <p>You bought the car for $0.00.</p>
+                
+                <div class="alert alert-success" style="text-align: left; margin-top: 30px;">
+                    <strong>FINAL STAGE COMPLETE</strong><br>
+                    Here is the last piece of the puzzle:<br>
+                    Flag Part 3: <br>
+                    <span class="flag-piece"><?php echo $FLAG_PART_3; ?></span>
+                </div>
+                
+                <div style="margin-top: 20px; color: #888;">
+                    <strong>Combine your parts:</strong><br>
+                    Part 1 + Part 2 + Part 3 = Full Flag
+                </div>
+            </div>
+
+        <?php endif; ?>
+    </div>
+</body>
+</html>

@@ -6,39 +6,88 @@ services:
     ports:
       - "8001:80"
 
-  lab3:
+  lab2:
     build: ./file_upload
     ports:
       - "8002:80"
-  lab4:
+  lab3:
     build: ./user_role_modified
     ports:
       - "8003:80"
-  lab5:
+  lab4:
     build: ./xss_lab
     ports:
       - "8004:80"
-  lab6:
+  lab5:
     build: ./xss_level_2
     ports:
       - "8005:80"
-  lab7:
+  lab6:
     build: ./Infinite_Money_Glitch
     ports:
       - "8006:80"
-  lab8:
+  lab7:
     build: ./Unprotected_admin_functionality
     ports:
       - "8007:80"
-  lab9:
+  lab8:
     build: ./bank_lab
     ports:
       - "8008:80"
-  lab10:
+  lab9:
     build: ./xss_mullti_params
     ports:
       - "8009:80"
-  lab11:
+  lab10:
     build: ./broken_access_controll_by_cookiees
     ports:
       - "8010:80"
+  lab11:
+    build: ./buy_lamborghini
+    ports:
+      - "8011:80"
+
+  lab12:
+    build: ./coupon_medium
+    ports:
+      - "8012:80"
+  lab13:
+    build: ./idor_invoice
+    ports:
+      - "8013:80"
+  lab14:
+    build: ./idor_medium
+    ports:
+      - "8014:80"
+  lab15:
+    build: ./idor_profile
+    ports:
+      - "8015:80"
+  lab16:
+    build: ./idor_service_desk
+    ports:
+      - "8016:80"
+  lab17:
+    build: ./operation_iron_shield_army
+    ports:
+      - "8017:80"
+  lab18:
+    build: ./Payment_Status_Tampering
+    ports:
+      - "8018:80"
+  lab19:
+    build: ./phone_at_1
+    ports:
+      - "8019:80"
+  lab20:
+    build: ./shop_burp_lab
+    ports:
+      - "8020:80"
+  lab21:
+    build: ./source_hunt
+    ports:
+      - "8021:80"
+  lab22:
+    build: ./source_hunting_10
+    ports:
+      - "8022:80"
