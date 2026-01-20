@@ -108,6 +108,7 @@ $page = $_GET['page'] ?? 'home';
                 <h1>QuantumLeap Dynamics</h1>
                 <p>Building the processors of tomorrow, today.</p>
                 <div style="font-size: 5rem; margin: 30px;">⚛️</div>
+                <!-- Flag Part 1: <?php echo $F['home']; ?> -->    
                 <p>Welcome to our corporate intranet. Please explore our pages to learn more.</p>
             </div>
 
@@ -200,6 +201,8 @@ echo htmlspecialchars(
     </url>
 </urlset>'
 );
+// Flag Part 10:
+echo   "<!-- Flag Part 10   -->             " .  $F['sitemap']; 
 ?>
 </textarea>
                 <p>Check the XML comment inside the text area code.</p>
