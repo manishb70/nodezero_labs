@@ -11,7 +11,7 @@ if (!isset($_SESSION['balance'])) {
 // 2. Reset Button Logic (In case you break the economy)
 if (isset($_GET['reset'])) {
     session_destroy();
-    header("Location: store.php");
+    header("Location: index.php");
     exit;
 }
 
