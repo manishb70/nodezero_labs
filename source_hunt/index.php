@@ -22,12 +22,13 @@ if (isset($_POST['check_flag'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- TODO: Fix z-index on navbar.
-               FLAG PART 2: NodeZero{v1ew_
+               FLAG PART 1: NodeZero{v1ew_
+               
              -->
 
     <title>NeonDev | Under Construction</title>
     <style>
-        /* --- MAIN STYLESHEET --- */
+        /* --- MAIN STYLESHEET --- */   
         :root {
             --bg: #0d0d12;
             --card: #15151e;
